@@ -26,8 +26,8 @@ function main() {
         const timeDelta = currentTimestamp - thing.startedAt;
         const screenScale = Math.max(canvasWidth, canvasHeight) / 900
         return {
-            x: (canvasWidth / 2 + (thing.direction.x * timeDelta * TimeScalingFactor * screenScale)),
-            y: (canvasHeight / 2 + (thing.direction.y * timeDelta * TimeScalingFactor * screenScale)),
+            x: (canvasWidth / 2 + (thing.direction.x  * timeDelta * TimeScalingFactor * screenScale)),
+            y: (canvasHeight / 2 + (thing.direction.y  * timeDelta * TimeScalingFactor * screenScale)),
             width: (weedLeaf.width * SizeScaleFactor * timeDelta * screenScale),
             height: (weedLeaf.height * SizeScaleFactor * timeDelta * screenScale),
         }
@@ -43,6 +43,7 @@ function main() {
     class Thing {
         constructor(timestamp) {
             this.resetRandom(timestamp)
+            this.startedAt -= Math.random() * 2000.0
         }
 
         resetRandom(timestamp) {
@@ -51,6 +52,8 @@ function main() {
                 (Math.random() - 0.5),
                 (Math.random() - 0.5),
             );
+            this.hueRotation = Math.floor(Math.random() * 360);
+            this.speedVariance = Math.random();
             return this;
         }
 
@@ -59,20 +62,23 @@ function main() {
     var things = []
 
     while (things.length < 60) {
-        things.push(new Thing());
+        things.push(new Thing(start));
     }
 
-    var lastFrame = -Infinity;
     ctx.globalCompositeOperation = 'source-over';
     const animationStep = (timestamp) => {
-        if (timestamp - lastFrame >= 60 / 1000.0) {
+        if (true) {
+            if (ctx.canvas.width != window.innerWidth || ctx.canvas.height != window.innerHeight) {
             ctx.canvas.width = window.innerWidth;
             ctx.canvas.height = window.innerHeight;
             canvasWidth = canvas.clientWidth;
             canvasHeight = canvas.clientHeight;
+            }
 
-            ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+            ctx.fillStyle = "rgba(0, 0, 0, 1)";
+
+
 
             things.forEach((thing, index) => {
 
@@ -84,12 +90,12 @@ function main() {
                     && 0 < position.y + position.width / 2;
 
                 if (shouldKeep) {
-                    ctx.filter = 'hue-rotate(' + index / 50 * 360 + 'deg) saturate(420%)';
+                    ctx.filter = 'hue-rotate(' + thing.hueRotation + 'deg) saturate(420%)';
                     ctx.drawImage(weedLeaf,
-                        position.x - position.width / 2,
-                        position.y - position.height / 2,
-                        position.width,
-                        position.height,
+                        Math.floor(position.x - position.width / 2),
+                        Math.floor(position.y - position.height / 2),
+                        Math.floor(position.width),
+                        Math.floor(position.height),
                     );
                 }
                 else {
@@ -105,7 +111,7 @@ function main() {
     }
 
     weedLeaf.onload = function () {
-        
+
         window.requestAnimationFrame(animationStep);
     }
 
