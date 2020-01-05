@@ -1,0 +1,1 @@
+Icon made by Nikita Golubev from www.flaticon.com.
